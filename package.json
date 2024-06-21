@@ -1,0 +1,21 @@
+{
+  "name": "24.6.6-webified-descopti-generalized-contentupdate-script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "express": "^4.19.2",
+    "googleapis": "^139.0.0",
+    "jimp": "^0.22.12",
+    "puppeteer": "^22.10.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
