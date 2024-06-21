@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer-extra');
+require("dotenv").config();
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
@@ -8,7 +9,19 @@ const { uploadToGoogleDrive } = require('../utils/googleDriveUtils');
 const { waitForImagesToLoad, getElementDimensions } = require('../utils/updateDescImg_helperFunctions');
 
 async function updateDescImgs(projectName, skuList) {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+            "--disable-setuid-sandbox",
+            "--no-sandbox",
+            "--single-process",
+            "--no-zygote",
+            "--enable-gpu",
+            '--disable-features=site-per-process'
+        ],
+        executablePath: process.env.NODE_ENV === 'production' ? process.env.PUPPETEER_EXECUTABLE_PATH : puppeteer.executablePath(),
+    });
+
     const page = await browser.newPage();
     const DEVICE_SCALE_FACTOR = 4;
     await page.setViewport({ width: 1280, height: 1080, deviceScaleFactor: DEVICE_SCALE_FACTOR });
