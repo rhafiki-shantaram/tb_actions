@@ -1,6 +1,5 @@
 const express = require('express');
-const { updateDescImgs } = require('C:\\vsScripts\\vsScripts\\24.6.6 webified descOpti (generalized contentUpdate Script)\\actions\\updateDescImgs.js'); // Adjust the path as needed 
-
+const { updateDescImgs } = require('./actions/updateDescImgs.js'); // Adjust the path as needed
 const app = express();
 const port = 3000;
 
