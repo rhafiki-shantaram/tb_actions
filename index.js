@@ -15,7 +15,7 @@ app.get("/action", async (req, res) => {
             return res.status(400).send('Missing required query parameters.');
         }
         const parsedSkuList = JSON.parse(decodeURIComponent(skuList));
-        await updateDescImgs(projectName, actionName, parsedSkuList);
+        await updateDescImgs(projectName, parsedSkuList);
         res.status(200).send('Process completed successfully.');
     } catch (error) {
         console.error('Error:', error);
