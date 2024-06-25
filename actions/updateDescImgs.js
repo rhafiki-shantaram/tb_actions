@@ -23,8 +23,8 @@ async function updateDescImgs(projectName, skuList) {
     });
 
     const page = await browser.newPage();
-    const DEVICE_SCALE_FACTOR = 4;
-    await page.setViewport({ width: 1280, height: 1080, deviceScaleFactor: DEVICE_SCALE_FACTOR });
+    const DEVICE_SCALE_FACTOR = 2.5;
+    await page.setViewport({ width: 768, height: 1080, deviceScaleFactor: DEVICE_SCALE_FACTOR });
 
     try {
         const selectors = parentProjectSelectors[projectName];
