@@ -7,6 +7,7 @@ const parentProjectSelectors = require('../selectors/parentProjectSelectors');
 const { captureScreenshot, processImage } = require('../utils/jimpUtils');
 const { uploadToGoogleDrive } = require('../utils/googleDriveUtils');
 const { waitForImagesToLoad, getElementDimensions } = require('../utils/updateDescImg_helperFunctions');
+const fetch = require('node-fetch'); // Ensure to install node-fetch if not already installed
 
 async function updateDescImgs(projectName, skuList) {
     const browser = await puppeteer.launch({
@@ -25,6 +26,20 @@ async function updateDescImgs(projectName, skuList) {
     const page = await browser.newPage();
     const DEVICE_SCALE_FACTOR = 2.5;
     await page.setViewport({ width: 768, height: 1080, deviceScaleFactor: DEVICE_SCALE_FACTOR });
+
+    const sendStatusUpdate = async (eventIndex, sku) => {
+        try {
+            await fetch('https://trendyadventurer.wixstudio.io/tb-redo/_functions/updateDescImgs_statusUpdate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ eventIndex, sku })
+            });
+        } catch (error) {
+            console.error('Error sending status update:', error);
+        }
+    };
 
     try {
         const selectors = parentProjectSelectors[projectName];
@@ -55,10 +70,14 @@ async function updateDescImgs(projectName, skuList) {
         await page.mouse.move(0, 0);
         console.log('Mouse moved off the dropdown option.');
 
-        for (const sku of skuList) {
+        for (let i = 0; i < skuList.length; i++) {
+            const sku = skuList[i];
+            let eventIndexCounter = 0;
+            await sendStatusUpdate(++eventIndexCounter, sku); // Log the Processing SKU
             console.log(`Processing SKU: ${sku}`);
             const inputHandle = await page.$(`#${selectors.searchInput}`);
             if (inputHandle) {
+                await sendStatusUpdate(++eventIndexCounter, sku); // Locate and Interact with the Input Field
                 console.log(`Input field with selector "#${selectors.searchInput}" found.`);
                 await page.waitForSelector(`#${selectors.searchInput}`, { visible: true, timeout: 3000 });
                 console.log(`Input field with selector "#${selectors.searchInput}" is visible.`);
@@ -83,6 +102,7 @@ async function updateDescImgs(projectName, skuList) {
                 console.log(`SKU ${sku} entered and submitted.`);
 
                 // Wait for page assets to load after SKU input
+                await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
                 await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
                 await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
 
@@ -96,6 +116,7 @@ async function updateDescImgs(projectName, skuList) {
                 await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
 
                 // Capture full-length screenshot of the page as a buffer
+                await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
                 const screenshotBuffer = await page.screenshot({ fullPage: true });
 
                 const sectionURLs = [];
@@ -106,6 +127,7 @@ async function updateDescImgs(projectName, skuList) {
                         console.log(`Dimensions for section #${section}:`, dimensions);
 
                         // Process image with JIMP (crop and watermark) using the dimensions
+                        await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
                         const { buffer: processedImageBuffer, width, height } = await processImage(
                             screenshotBuffer,
                             selectors.watermarkUrl, // Use the URL for the watermark
@@ -124,9 +146,11 @@ async function updateDescImgs(projectName, skuList) {
                 }
 
                 // Input Google Drive URLs into the page
-                for (let i = 0; i < sectionURLs.length; i++) {
-                    const gURL = sectionURLs[i];
-                    const inputSelector = `#${selectors.gURL_inputs[i]}`;
+                await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
+                for (let j = 0; j < sectionURLs.length; j++) {
+                    if (j > 0) await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
+                    const gURL = sectionURLs[j];
+                    const inputSelector = `#${selectors.gURL_inputs[j]}`;
                     console.log(`Inputting Google Drive URL into: ${inputSelector}`);
                     await page.waitForSelector(inputSelector, { visible: true, timeout: 3000 });
                     console.log(`Input field with selector "${inputSelector}" is visible.`);
