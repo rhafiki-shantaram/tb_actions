@@ -1,6 +1,6 @@
 const parentProjectSelectors = {
     LadyGrayy: {
-        targetUrl: https://trendbase.wixstudio.io/tb-redo/blank-4,
+        targetUrl: 'https://trendbase.wixstudio.io/tb-redo/blank-4',
         dropdown: 'comp-lwzvacy9',
         optionText: 'Lady Grayy', 
         searchInput: 'input_comp-lx04dqgg1',
