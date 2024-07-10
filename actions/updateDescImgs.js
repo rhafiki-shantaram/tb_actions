@@ -9,6 +9,21 @@ const { uploadToGoogleDrive } = require('../utils/googleDriveUtils');
 const { waitForImagesToLoad, getElementDimensions } = require('../utils/updateDescImg_helperFunctions');
 const fetch = require('node-fetch'); // Ensure to install node-fetch if not already installed
 
+const googleDriveConfig = {
+    type: process.env.GOOGLE_DRIVE_TYPE,
+    project_id: process.env.GOOGLE_DRIVE_PROJECT_ID,
+    private_key_id: process.env.GOOGLE_DRIVE_PRIVATE_KEY_ID,
+    private_key: process.env.GOOGLE_DRIVE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    client_email: process.env.GOOGLE_DRIVE_CLIENT_EMAIL,
+    client_id: process.env.GOOGLE_DRIVE_CLIENT_ID,
+    auth_uri: process.env.GOOGLE_DRIVE_AUTH_URI,
+    token_uri: process.env.GOOGLE_DRIVE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.GOOGLE_DRIVE_AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.GOOGLE_DRIVE_CLIENT_X509_CERT_URL,
+    universe_domain: process.env.GOOGLE_DRIVE_UNIVERSE_DOMAIN,
+    drive_folder_id: process.env.GOOGLE_DRIVE_FOLDER_ID
+};
+
 async function updateDescImgs(projectName, skuList) {
     const browser = await puppeteer.launch({
         headless: true,
@@ -103,8 +118,8 @@ async function updateDescImgs(projectName, skuList) {
 
                 // Wait for page assets to load after SKU input
                 await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
-                await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
                 await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
+                await new Promise(resolve => setTimeout(resolve, 5000)); 
 
                 for (const section of selectors.sections) {
                     console.log(`Waiting for section to load: #${section}`);
@@ -135,7 +150,7 @@ async function updateDescImgs(projectName, skuList) {
                         );
 
                         // Upload processed image to Google Drive
-                        const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, selectors.googleDriveConfig, Math.round(width), Math.round(height));
+                        const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, googleDriveConfig, Math.round(width), Math.round(height));
 
                         console.log(`Processed SKU: ${sku}, Google Drive Link: ${googleDriveLink}`);
                         sectionURLs.push(googleDriveLink);
