@@ -70,6 +70,19 @@ async function updateDescImgs(projectName, skuList) {
         await page.mouse.move(0, 0);
         console.log('Mouse moved off the dropdown option.');
 
+        // Scroll to the bottom of the page
+        await page.evaluate(() => {
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        // Wait for one second
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Scroll back to the top of the page
+        await page.evaluate(() => {
+            window.scrollTo(0, 0);
+        });
+
         for (let i = 0; i < skuList.length; i++) {
             const sku = skuList[i];
             let eventIndexCounter = 0;
@@ -104,7 +117,7 @@ async function updateDescImgs(projectName, skuList) {
                 // Wait for page assets to load after SKU input
                 await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
                 await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
-                await new Promise(resolve => setTimeout(resolve, 6000));  // Adjust the timeout as necessary
+                await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
                 for (const section of selectors.sections) {
                     console.log(`Waiting for section to load: #${section}`);
