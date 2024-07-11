@@ -92,7 +92,7 @@ async function updateDescImgs(projectName, skuList) {
             if (inputHandle) {
                 await sendStatusUpdate(++eventIndexCounter, sku); // Locate and Interact with the Input Field
                 console.log(`Input field with selector "#${selectors.searchInput}" found.`);
-                await page.waitForSelector(`#${selectors.searchInput}`, { visible: true, timeout: 3000 });
+                await page.waitForSelector(`#${selectors.searchInput}`, { visible: true, timeout: 30000 });
                 console.log(`Input field with selector "#${selectors.searchInput}" is visible.`);
                 await page.focus(`#${selectors.searchInput}`);
                 await page.click(`#${selectors.searchInput}`);
@@ -165,7 +165,7 @@ async function updateDescImgs(projectName, skuList) {
                     const gURL = sectionURLs[j];
                     const inputSelector = `#${selectors.gURL_inputs[j]}`;
                     console.log(`Inputting Google Drive URL into: ${inputSelector}`);
-                    await page.waitForSelector(inputSelector, { visible: true, timeout: 3000 });
+                    await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
                     console.log(`Input field with selector "${inputSelector}" is visible.`);
                     await page.focus(inputSelector);
                     await page.click(inputSelector);
