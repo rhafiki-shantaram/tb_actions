@@ -30,7 +30,7 @@ const parentProjectSelectors = {
         searchInput: 'input_comp-lx04dqgg1',
         pageAssets: ["img-comp-ly41quih4", "comp-ly41quia4", "img-comp-ly43tpzd1", "img-comp-ly47oqjg", ""],
         sections: ["comp-ly41quhg2", "comp-ly43ljyp6", "comp-ly47oqj93", "comp-ly47zucx"],
-        gURL_inputs: [...],
+        gURL_inputs: ["input_comp-lymtnxpf", "input_comp-lymtpn7o", "input_comp-lymtpvay3", "input_comp-lymtpznm1"],
         googleDriveConfig: {
             "type": "service_account",
             "project_id": "descimgup",
