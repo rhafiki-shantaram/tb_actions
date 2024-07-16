@@ -116,13 +116,24 @@ async function updateDescImgs(projectName, skuList) {
 
                 // Wait for page assets to load after SKU input
                 await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
-                await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
+                const assetsToWaitFor = selectors.pageAssets
+                    .filter(asset => asset !== 'img-comp-lye58pqb1' && asset !== 'img-comp-lydxb9ss')
+                    .map(asset => `#${asset} img`);
+                if (await page.$(`#comp-lydv3ffl`)) {
+                    console.log('Section "comp-lydv3ffl" is visible.');
+                    assetsToWaitFor.push('#img-comp-lye58pqb1 img', '#img-comp-lydxb9ss img');
+                } else {
+                    console.log('Section "comp-lydv3ffl" is not visible.');
+                }
+
+                await waitForImagesToLoad(page, assetsToWaitFor);
                 await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
                 for (const section of selectors.sections) {
                     console.log(`Waiting for section to load: #${section}`);
-                    await page.waitForSelector(`#${section}`);
-                    console.log(`Section #${section} loaded.`);
+                    await page.waitForSelector(`#${section}`, { visible: true, timeout: 10000 }).catch(() => {
+                        console.log(`Section #${section} is not visible.`);
+                    });
                 }
 
                 // Add an additional delay to ensure the page is fully loaded
@@ -134,6 +145,10 @@ async function updateDescImgs(projectName, skuList) {
 
                 const sectionURLs = [];
                 for (const section of selectors.sections) {
+                    if (!(await page.$(`#${section}`))) {
+                        console.log(`Skipping section #${section} as it is not visible.`);
+                        continue;
+                    }
                     console.log(`Getting dimensions for section: #${section}`);
                     try {
                         const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
