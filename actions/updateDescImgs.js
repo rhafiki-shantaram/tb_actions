@@ -114,101 +114,96 @@ async function updateDescImgs(projectName, skuList) {
                 await page.keyboard.press('Enter');
                 console.log(`SKU ${sku} entered and submitted.`);
 
-                // Wait for page assets to load after SKU input
-                await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
-                const assetsToWaitFor = selectors.pageAssets
-                    .filter(asset => asset !== 'img-comp-lye58pqb1' && asset !== 'img-comp-lydxb9ss')
-                    .map(asset => `#${asset} img`);
-                if (await page.$(`#comp-lydv3ffl`)) {
-                    console.log('Section "comp-lydv3ffl" is visible.');
-                    assetsToWaitFor.push('#img-comp-lye58pqb1 img', '#img-comp-lydxb9ss img');
-                } else {
-                    console.log('Section "comp-lydv3ffl" is not visible.');
-                }
+                // Check if the specified section is visible
+                const sectionVisible = await page.evaluate((selector) => {
+                    const element = document.querySelector(`#${selector}`);
+                    return element && element.offsetParent !== null;
+                }, 'comp-lydv3ffl');
 
-                await waitForImagesToLoad(page, assetsToWaitFor);
-                await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
+                if (sectionVisible) {
+                    // Wait for page assets to load after SKU input
+                    await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
+                    await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
+                    await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
-                for (const section of selectors.sections) {
-                    console.log(`Waiting for section to load: #${section}`);
-                    await page.waitForSelector(`#${section}`, { visible: true, timeout: 10000 }).catch(() => {
-                        console.log(`Section #${section} is not visible.`);
-                    });
-                }
-
-                // Add an additional delay to ensure the page is fully loaded
-                await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
-
-                // Capture full-length screenshot of the page as a buffer
-                await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
-                const screenshotBuffer = await page.screenshot({ fullPage: true });
-
-                const sectionURLs = [];
-                for (const section of selectors.sections) {
-                    if (!(await page.$(`#${section}`))) {
-                        console.log(`Skipping section #${section} as it is not visible.`);
-                        continue;
+                    for (const section of selectors.sections) {
+                        console.log(`Waiting for section to load: #${section}`);
+                        await page.waitForSelector(`#${section}`);
+                        console.log(`Section #${section} loaded.`);
                     }
-                    console.log(`Getting dimensions for section: #${section}`);
-                    try {
-                        const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
-                        console.log(`Dimensions for section #${section}:`, dimensions);
 
-                        // Process image with JIMP (crop and watermark) using the dimensions
-                        await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
-                        const { buffer: processedImageBuffer, width, height } = await processImage(
-                            screenshotBuffer,
-                            selectors.watermarkUrl, // Use the URL for the watermark
-                            dimensions
-                        );
+                    // Add an additional delay to ensure the page is fully loaded
+                    await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
 
-                        // Upload processed image to Google Drive
-                        const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, selectors.googleDriveConfig, Math.round(width), Math.round(height));
+                    // Capture full-length screenshot of the page as a buffer
+                    await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
+                    const screenshotBuffer = await page.screenshot({ fullPage: true });
 
-                        console.log(`Processed SKU: ${sku}, Google Drive Link: ${googleDriveLink}`);
-                        sectionURLs.push(googleDriveLink);
+                    const sectionURLs = [];
+                    for (const section of selectors.sections) {
+                        console.log(`Getting dimensions for section: #${section}`);
+                        try {
+                            const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
+                            console.log(`Dimensions for section #${section}:`, dimensions);
 
-                    } catch (error) {
-                        console.error(`Error processing section #${section}:`, error.message);
+                            // Process image with JIMP (crop and watermark) using the dimensions
+                            await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
+                            const { buffer: processedImageBuffer, width, height } = await processImage(
+                                screenshotBuffer,
+                                selectors.watermarkUrl, // Use the URL for the watermark
+                                dimensions
+                            );
+
+                            // Upload processed image to Google Drive
+                            const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, selectors.googleDriveConfig, Math.round(width), Math.round(height));
+
+                            console.log(`Processed SKU: ${sku}, Google Drive Link: ${googleDriveLink}`);
+                            sectionURLs.push(googleDriveLink);
+
+                        } catch (error) {
+                            console.error(`Error processing section #${section}:`, error.message);
+                        }
                     }
-                }
 
-                // Input Google Drive URLs into the page
-                await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
-                for (let j = 0; j < sectionURLs.length; j++) {
-                    if (j > 0) await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
-                    const gURL = sectionURLs[j];
-                    const inputSelector = `#${selectors.gURL_inputs[j]}`;
-                    console.log(`Inputting Google Drive URL into: ${inputSelector}`);
-                    await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
-                    console.log(`Input field with selector "${inputSelector}" is visible.`);
-                    await page.focus(inputSelector);
-                    await page.click(inputSelector);
-                    const inputValueBefore = await page.evaluate((selector) => {
-                        return document.querySelector(selector).value;
-                    }, inputSelector);
-                    console.log(`Input field value before typing: "${inputValueBefore}"`);
-                    if (inputValueBefore !== "") {
-                        console.log(`Clearing input field before typing.`);
-                        await page.evaluate((selector) => {
-                            document.querySelector(selector).value = '';
+                    // Input Google Drive URLs into the page
+                    await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
+                    for (let j = 0; j < sectionURLs.length; j++) {
+                        if (j > 0) await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
+                        const gURL = sectionURLs[j];
+                        const inputSelector = `#${selectors.gURL_inputs[j]}`;
+                        console.log(`Inputting Google Drive URL into: ${inputSelector}`);
+                        await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
+                        console.log(`Input field with selector "${inputSelector}" is visible.`);
+                        await page.focus(inputSelector);
+                        await page.click(inputSelector);
+                        const inputValueBefore = await page.evaluate((selector) => {
+                            return document.querySelector(selector).value;
                         }, inputSelector);
+                        console.log(`Input field value before typing: "${inputValueBefore}"`);
+                        if (inputValueBefore !== "") {
+                            console.log(`Clearing input field before typing.`);
+                            await page.evaluate((selector) => {
+                                document.querySelector(selector).value = '';
+                            }, inputSelector);
+                        }
+                        await page.keyboard.type(gURL);
+                        const inputValueAfter = await page.evaluate((selector) => {
+                            return document.querySelector(selector).value;
+                        }, inputSelector);
+                        console.log(`Input field value after typing: "${inputValueAfter}"`);
+                        await page.mouse.move(0, 0); // Move mouse away to trigger onChange
+                        await page.evaluate((selector) => {
+                            const input = document.querySelector(selector);
+                            input.blur(); // Explicitly trigger the blur event
+                        }, inputSelector);
+                        console.log(`Google Drive URL "${gURL}" inputted into ${inputSelector}`);
                     }
-                    await page.keyboard.type(gURL);
-                    const inputValueAfter = await page.evaluate((selector) => {
-                        return document.querySelector(selector).value;
-                    }, inputSelector);
-                    console.log(`Input field value after typing: "${inputValueAfter}"`);
-                    await page.mouse.move(0, 0); // Move mouse away to trigger onChange
-                    await page.evaluate((selector) => {
-                        const input = document.querySelector(selector);
-                        input.blur(); // Explicitly trigger the blur event
-                    }, inputSelector);
-                    console.log(`Google Drive URL "${gURL}" inputted into ${inputSelector}`);
-                }
 
-                // Add an additional delay to ensure the inputs are processed
-                await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary    
+                    // Add an additional delay to ensure the inputs are processed
+                    await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary    
+                } else {
+                    console.log('Specified section "comp-lydv3ffl" is not visible. Skipping associated assets and inputs.');
+                }
 
             } else {
                 console.log(`Input field with selector "#${selectors.searchInput}" not found.`);
