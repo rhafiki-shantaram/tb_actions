@@ -148,6 +148,8 @@ async function updateDescImgs(projectName, skuList) {
                         if (j > 0) await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
                         const gURL = sectionURLs[j];
                         const inputSelector = `#${selectors.gURL_inputs[j]}`;
+
+                        await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
                         
                         const inputVisible = await page.evaluate((selector) => {
                             const element = document.querySelector(selector);
