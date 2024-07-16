@@ -44,21 +44,14 @@ async function updateDescImgs(projectName, skuList) {
     try {
         const selectors = parentProjectSelectors[projectName];
         const url = selectors.targetUrl;
-        console.log(Navigating to URL: ${url});
+        console.log(`Navigating to URL: ${url}`);
         await page.goto(url, { waitUntil: 'networkidle2' });
-        console.log(Navigation to ${url} complete.);
         await new Promise(resolve => setTimeout(resolve, 5000));
-        console.log('Page load wait complete.');
 
-        console.log(Clicking dropdown: #${selectors.dropdown});
-        await page.click(#${selectors.dropdown});
-        console.log(Dropdown #${selectors.dropdown} clicked.);
-        console.log(Waiting for dropdown options to load: #listModal_${selectors.dropdown});
-        await page.waitForSelector(#listModal_${selectors.dropdown}, { visible: true });
-        console.log(Dropdown options for #listModal_${selectors.dropdown} loaded.);
-        console.log(Selecting dropdown option with text: ${selectors.optionText});
+        await page.click(`#${selectors.dropdown}`);
+        await page.waitForSelector(`#listModal_${selectors.dropdown}`, { visible: true });
         await page.evaluate((dropdownSelector, optionText) => {
-            const optionList = document.querySelector(#listModal_${dropdownSelector});
+            const optionList = document.querySelector(`#listModal_${dropdownSelector}`);
             const options = optionList.querySelectorAll('div');
             options.forEach(option => {
                 if (option.innerText.includes(optionText)) {
@@ -66,9 +59,7 @@ async function updateDescImgs(projectName, skuList) {
                 }
             });
         }, selectors.dropdown, selectors.optionText);
-        console.log(Dropdown option with text ${selectors.optionText} selected.);
         await page.mouse.move(0, 0);
-        console.log('Mouse moved off the dropdown option.');
 
         // Scroll to the bottom of the page
         await page.evaluate(() => {
@@ -87,49 +78,38 @@ async function updateDescImgs(projectName, skuList) {
             const sku = skuList[i];
             let eventIndexCounter = 0;
             await sendStatusUpdate(++eventIndexCounter, sku); // Log the Processing SKU
-            console.log(Processing SKU: ${sku});
-            const inputHandle = await page.$(#${selectors.searchInput});
+            console.log(`Processing SKU: ${sku}`);
+            const inputHandle = await page.$(`#${selectors.searchInput}`);
             if (inputHandle) {
                 await sendStatusUpdate(++eventIndexCounter, sku); // Locate and Interact with the Input Field
-                console.log(Input field with selector "#${selectors.searchInput}" found.);
-                await page.waitForSelector(#${selectors.searchInput}, { visible: true, timeout: 30000 });
-                console.log(Input field with selector "#${selectors.searchInput}" is visible.);
-                await page.focus(#${selectors.searchInput});
-                await page.click(#${selectors.searchInput});
+                await page.waitForSelector(`#${selectors.searchInput}`, { visible: true, timeout: 30000 });
+                await page.focus(`#${selectors.searchInput}`);
+                await page.click(`#${selectors.searchInput}`);
                 const inputValueBefore = await page.evaluate((selector) => {
                     return document.querySelector(selector).value;
-                }, #${selectors.searchInput});
-                console.log(Input field value before typing: "${inputValueBefore}");
+                }, `#${selectors.searchInput}`);
                 if (inputValueBefore !== "") {
-                    console.log(Clearing input field before typing.);
                     await page.evaluate((selector) => {
                         document.querySelector(selector).value = '';
-                    }, #${selectors.searchInput});
+                    }, `#${selectors.searchInput}`);
                 }
                 await page.keyboard.type(sku);
-                const inputValueAfter = await page.evaluate((selector) => {
-                    return document.querySelector(selector).value;
-                }, #${selectors.searchInput});
-                console.log(Input field value after typing: "${inputValueAfter}");
                 await page.keyboard.press('Enter');
-                console.log(SKU ${sku} entered and submitted.);
 
                 // Check if the specified section is visible
                 const sectionVisible = await page.evaluate((selector) => {
-                    const element = document.querySelector(#${selector});
+                    const element = document.querySelector(`#${selector}`);
                     return element && element.offsetParent !== null;
                 }, 'comp-lydv3ffl');
 
                 if (sectionVisible) {
                     // Wait for page assets to load after SKU input
                     await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
-                    await waitForImagesToLoad(page, selectors.pageAssets.map(asset => #${asset} img));
+                    await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
                     await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
                     for (const section of selectors.sections) {
-                        console.log(Waiting for section to load: #${section});
-                        await page.waitForSelector(#${section});
-                        console.log(Section #${section} loaded.);
+                        await page.waitForSelector(`#${section}`);
                     }
 
                     // Add an additional delay to ensure the page is fully loaded
@@ -141,10 +121,8 @@ async function updateDescImgs(projectName, skuList) {
 
                     const sectionURLs = [];
                     for (const section of selectors.sections) {
-                        console.log(Getting dimensions for section: #${section});
                         try {
-                            const dimensions = await getElementDimensions(page, #${section}, DEVICE_SCALE_FACTOR);
-                            console.log(Dimensions for section #${section}:, dimensions);
+                            const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
 
                             // Process image with JIMP (crop and watermark) using the dimensions
                             await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
@@ -157,11 +135,10 @@ async function updateDescImgs(projectName, skuList) {
                             // Upload processed image to Google Drive
                             const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, selectors.googleDriveConfig, Math.round(width), Math.round(height));
 
-                            console.log(Processed SKU: ${sku}, Google Drive Link: ${googleDriveLink});
                             sectionURLs.push(googleDriveLink);
 
                         } catch (error) {
-                            console.error(Error processing section #${section}:, error.message);
+                            console.error(`Error processing section #${section}:`, error.message);
                         }
                     }
 
@@ -170,60 +147,48 @@ async function updateDescImgs(projectName, skuList) {
                     for (let j = 0; j < sectionURLs.length; j++) {
                         if (j > 0) await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
                         const gURL = sectionURLs[j];
-                        const inputSelector = #${selectors.gURL_inputs[j]};
-                        console.log(Inputting Google Drive URL into: ${inputSelector});
+                        const inputSelector = `#${selectors.gURL_inputs[j]}`;
                         
                         const inputVisible = await page.evaluate((selector) => {
                             const element = document.querySelector(selector);
                             return element && element.offsetParent !== null;
                         }, inputSelector);
 
+                        console.log(`input seems to be visible? `, inputVisible);
+
                         if (inputVisible) {
                             await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
-                            console.log(Input field with selector "${inputSelector}" is visible.);
                             await page.focus(inputSelector);
                             await page.click(inputSelector);
                             const inputValueBefore = await page.evaluate((selector) => {
                                 return document.querySelector(selector).value;
                             }, inputSelector);
-                            console.log(Input field value before typing: "${inputValueBefore}");
                             if (inputValueBefore !== "") {
-                                console.log(Clearing input field before typing.);
                                 await page.evaluate((selector) => {
                                     document.querySelector(selector).value = '';
                                 }, inputSelector);
                             }
                             await page.keyboard.type(gURL);
-                            const inputValueAfter = await page.evaluate((selector) => {
-                                return document.querySelector(selector).value;
-                            }, inputSelector);
-                            console.log(Input field value after typing: "${inputValueAfter}");
                             await page.mouse.move(0, 0); // Move mouse away to trigger onChange
                             await page.evaluate((selector) => {
                                 const input = document.querySelector(selector);
                                 input.blur(); // Explicitly trigger the blur event
                             }, inputSelector);
-                            console.log(Google Drive URL "${gURL}" inputted into ${inputSelector});
-                        } else {
-                            console.log(Input field with selector "${inputSelector}" is not visible. Skipping.);
                         }
                     }
 
                     // Add an additional delay to ensure the inputs are processed
                     await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary    
-                } else {
-                    console.log('Specified section "comp-lydv3ffl" is not visible. Skipping associated assets and inputs.');
                 }
 
-            } else {
-                console.log(Input field with selector "#${selectors.searchInput}" not found.);
             }
         }
 
     } catch (error) {
         console.error('Error in updateDescImgs:', error.message);
     } finally {
-        await browser.close(); // Comment out closing the browser for debugging
+        console.log('All finished, closing browser.');
+        await browser.close();
     }
 }
 
