@@ -156,7 +156,7 @@ async function updateDescImgs(projectName, skuList) {
 
                     // Input Google Drive URLs into the page
                     await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
-                    //let sectionIndex = 0; // Separate index for sectionURLs
+                    let sectionIndex = 0; // Separate index for sectionURLs
 
                     for (let j = 0; j < selectors.gURL_inputs.length; j++) {
                         if (j > 0) await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
@@ -182,7 +182,7 @@ async function updateDescImgs(projectName, skuList) {
                         console.log(`input seems to be visible? `, inputVisible);
 
                         if (inputVisible) {
-                            const gURL = sectionURLs[j]; // Use separate index for gURL value
+                            const gURL = sectionURLs[sectionIndex]; // Use separate index for gURL value
                             await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
                             await page.focus(inputSelector);
                             await page.click(inputSelector);
