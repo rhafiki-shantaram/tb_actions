@@ -96,6 +96,8 @@ async function updateDescImgs(projectName, skuList) {
                 await page.keyboard.type(sku);
                 await page.keyboard.press('Enter');
 
+                await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
+
                 // Check if the specified sections are visible dynamically
                 const visibleSections = await page.evaluate((sections) => {
                     return sections.filter(selector => {
@@ -119,13 +121,6 @@ async function updateDescImgs(projectName, skuList) {
                     await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
                     await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
-                    for (const section of visibleSections) {
-                        await page.waitForSelector(`#${section}`);
-                    }
-
-                    // Add an additional delay to ensure the page is fully loaded
-                    await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
-
                     // Capture full-length screenshot of the page as a buffer
                     await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
                     const screenshotBuffer = await page.screenshot({ fullPage: true });
@@ -146,7 +141,7 @@ async function updateDescImgs(projectName, skuList) {
                             // Upload processed image to Google Drive
                             const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, selectors.googleDriveConfig, Math.round(width), Math.round(height));
 
-                            sectionURLs.push(googleDriveLink);
+                            sectionURLs.push({ section, googleDriveLink });
 
                         } catch (error) {
                             console.error(`Error processing section #${section}:`, error.message);
@@ -156,52 +151,50 @@ async function updateDescImgs(projectName, skuList) {
 
                     // Input Google Drive URLs into the page
                     await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
-                    let sectionIndex = 0; // Separate index for sectionURLs
 
                     for (let j = 0; j < selectors.gURL_inputs.length; j++) {
-                        if (j > 0) await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
-                        
                         const inputSelector = `#${selectors.gURL_inputs[j]}`;
 
                         await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
-                        
+
                         const inputVisible = await page.evaluate((selector) => {
                             const element = document.querySelector(selector);
                             if (!element) return false;
-                            
+
                             const style = window.getComputedStyle(element);
                             const isVisible = style.display !== 'none' &&
                                             style.visibility !== 'hidden' &&
                                             style.opacity !== '0' &&
                                             element.offsetHeight > 0 &&
                                             element.offsetWidth > 0;
-                            
+
                             return isVisible;
                         }, inputSelector);
 
                         console.log(`input seems to be visible? `, inputVisible);
 
                         if (inputVisible) {
-                            const gURL = sectionURLs[sectionIndex]; // Use separate index for gURL value
-                            await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
-                            await page.focus(inputSelector);
-                            await page.click(inputSelector);
-                            const inputValueBefore = await page.evaluate((selector) => {
-                                return document.querySelector(selector).value;
-                            }, inputSelector);
-                            if (inputValueBefore !== "") {
+                            const sectionIndex = sectionURLs.findIndex(urlObj => urlObj.section === selectors.sections[j]);
+                            if (sectionIndex !== -1) {
+                                const gURL = sectionURLs[sectionIndex].googleDriveLink; // Match section with its URL
+                                await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
+                                await page.focus(inputSelector);
+                                await page.click(inputSelector);
+                                const inputValueBefore = await page.evaluate((selector) => {
+                                    return document.querySelector(selector).value;
+                                }, inputSelector);
+                                if (inputValueBefore !== "") {
+                                    await page.evaluate((selector) => {
+                                        document.querySelector(selector).value = '';
+                                    }, inputSelector);
+                                }
+                                await page.keyboard.type(gURL);
+                                await page.mouse.move(0, 0); // Move mouse away to trigger onChange
                                 await page.evaluate((selector) => {
-                                    document.querySelector(selector).value = '';
+                                    const input = document.querySelector(selector);
+                                    input.blur(); // Explicitly trigger the blur event
                                 }, inputSelector);
                             }
-                            await page.keyboard.type(gURL);
-                            await page.mouse.move(0, 0); // Move mouse away to trigger onChange
-                            await page.evaluate((selector) => {
-                                const input = document.querySelector(selector);
-                                input.blur(); // Explicitly trigger the blur event
-                            }, inputSelector);
-
-                            sectionIndex++; // Increment sectionIndex only if input is visible and processed
                         }
                     }
                 }
