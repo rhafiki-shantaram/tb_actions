@@ -96,11 +96,13 @@ async function updateDescImgs(projectName, skuList) {
                 await page.keyboard.type(sku);
                 await page.keyboard.press('Enter');
 
-                // Check if the specified section is visible
-                const sectionVisible = await page.evaluate((selector) => {
-                    const element = document.querySelector(`#${selector}`);
-                    return element && element.offsetParent !== null;
-                }, 'comp-lydv3ffl');
+                // Check if the specified sections are visible dynamically
+                const visibleSections = await page.evaluate((sections) => {
+                    return sections.filter(selector => {
+                        const element = document.querySelector(`#${selector}`);
+                        return element && element.offsetParent !== null;
+                    });
+                }, selectors.sections);
 
                 if (sectionVisible) {
                     // Wait for page assets to load after SKU input
