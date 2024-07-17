@@ -141,6 +141,7 @@ async function updateDescImgs(projectName, skuList) {
                             console.error(`Error processing section #${section}:`, error.message);
                         }
                     }
+                    console.log(`sectionURLs: `, sectionURLs);
 
                     // Input Google Drive URLs into the page
                     await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
