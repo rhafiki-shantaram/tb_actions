@@ -104,13 +104,13 @@ async function updateDescImgs(projectName, skuList) {
                     });
                 }, selectors.sections);
 
-                if (sectionVisible) {
+                if (visibleSections.length > 0) {
                     // Wait for page assets to load after SKU input
                     await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
                     await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
                     await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
-                    for (const section of selectors.sections) {
+                    for (const section of visibleSections) {
                         await page.waitForSelector(`#${section}`);
                     }
 
@@ -122,7 +122,7 @@ async function updateDescImgs(projectName, skuList) {
                     const screenshotBuffer = await page.screenshot({ fullPage: true });
 
                     const sectionURLs = [];
-                    for (const section of selectors.sections) {
+                    for (const section of visibleSections) {
                         try {
                             const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
 
