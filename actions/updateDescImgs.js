@@ -153,7 +153,16 @@ async function updateDescImgs(projectName, skuList) {
                         
                         const inputVisible = await page.evaluate((selector) => {
                             const element = document.querySelector(selector);
-                            return element && element.offsetParent !== null;
+                            if (!element) return false;
+                            
+                            const style = window.getComputedStyle(element);
+                            const isVisible = style.display !== 'none' &&
+                                              style.visibility !== 'hidden' &&
+                                              style.opacity !== '0' &&
+                                              element.offsetHeight > 0 &&
+                                              element.offsetWidth > 0;
+                            
+                            return isVisible;
                         }, inputSelector);
 
                         console.log(`input seems to be visible? `, inputVisible);
