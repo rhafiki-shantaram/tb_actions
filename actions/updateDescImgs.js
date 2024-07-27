@@ -123,21 +123,38 @@ async function updateDescImgs(projectName, skuList) {
                     await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
                     await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
-                    // Capture full-length screenshot of the page as a buffer
-                    await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
-                    const screenshotBuffer = await page.screenshot({ fullPage: true });
-                    
-                    console.log(`screenshotBuffer captured. length is ${screenshotBuffer.length}`);
                     const sectionURLs = [];
                     for (const section of visibleSections) {
                         try {
+                            // Collapse all other sections except the current one
+                            await page.evaluate((sections, currentSection) => {
+                                sections.forEach(selector => {
+                                    if (selector !== currentSection) {
+                                        const element = document.querySelector(`#${selector}`);
+                                        if (element) {
+                                            element.style.display = 'none';
+                                        }
+                                    }
+                                });
+                            }, selectors.sections, section);
+
+                            // Scroll to the current section
+                            await page.evaluate((selector) => {
+                                document.querySelector(`#${selector}`).scrollIntoView();
+                            }, section);
+
+                            await new Promise(resolve => setTimeout(resolve, 1000));  // Adjust the timeout as necessary
+
                             const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
 
+                            // Capture screenshot of the current section
+                            const sectionScreenshotBuffer = await page.screenshot({ clip: dimensions });
+
                             // Process image with JIMP (crop and watermark) using the dimensions
-                            console.log(`JIMPing section  ${section}`);
+                            console.log(`JIMPing section ${section}`);
                             await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
                             const { buffer: processedImageBuffer, width, height } = await processImage(
-                                screenshotBuffer,
+                                sectionScreenshotBuffer,
                                 selectors.watermarkUrl, // Use the URL for the watermark
                                 dimensions
                             );
@@ -146,6 +163,16 @@ async function updateDescImgs(projectName, skuList) {
                             const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, selectors.googleDriveConfig, Math.round(width), Math.round(height));
 
                             sectionURLs.push({ section, googleDriveLink });
+
+                            // Expand all sections back after processing the current one
+                            await page.evaluate((sections) => {
+                                sections.forEach(selector => {
+                                    const element = document.querySelector(`#${selector}`);
+                                    if (element) {
+                                        element.style.display = '';
+                                    }
+                                });
+                            }, selectors.sections);
 
                         } catch (error) {
                             console.error(`Error processing section #${section}:`, error.message);
