@@ -116,33 +116,25 @@ async function updateDescImgs(projectName, skuList) {
                     });
                 }, selectors.sections);
 
-                console.log(`visible sections count = ${visibleSections}`);
                 if (visibleSections.length > 0) {
                     // Wait for page assets to load after SKU input
                     await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
                     await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
                     await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
+                    // Capture full-length screenshot of the page as a buffer
+                    await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
+                    const screenshotBuffer = await page.screenshot({ fullPage: true });
+
                     const sectionURLs = [];
                     for (const section of visibleSections) {
                         try {
-                            // Scroll to the current section
-                            await page.evaluate((selector) => {
-                                document.querySelector(`#${selector}`).scrollIntoView();
-                            }, section);
-
-                            await new Promise(resolve => setTimeout(resolve, 1000));  // Adjust the timeout as necessary
-
                             const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
 
-                            // Capture screenshot of the current section
-                            const sectionScreenshotBuffer = await page.screenshot({ clip: dimensions });
-
                             // Process image with JIMP (crop and watermark) using the dimensions
-                            console.log(`JIMPing section ${section}`);
                             await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
                             const { buffer: processedImageBuffer, width, height } = await processImage(
-                                sectionScreenshotBuffer,
+                                screenshotBuffer,
                                 selectors.watermarkUrl, // Use the URL for the watermark
                                 dimensions
                             );
