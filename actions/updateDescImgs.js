@@ -134,6 +134,7 @@ async function updateDescImgs(projectName, skuList) {
                             const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
 
                             // Process image with JIMP (crop and watermark) using the dimensions
+                            console.log(`JIMPing section  ${section}`);
                             await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
                             const { buffer: processedImageBuffer, width, height } = await processImage(
                                 screenshotBuffer,
