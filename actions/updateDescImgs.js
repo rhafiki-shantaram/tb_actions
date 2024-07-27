@@ -126,18 +126,6 @@ async function updateDescImgs(projectName, skuList) {
                     const sectionURLs = [];
                     for (const section of visibleSections) {
                         try {
-                            // Collapse all other sections except the current one
-                            await page.evaluate((sections, currentSection) => {
-                                sections.forEach(selector => {
-                                    if (selector !== currentSection) {
-                                        const element = document.querySelector(`#${selector}`);
-                                        if (element) {
-                                            element.style.display = 'none';
-                                        }
-                                    }
-                                });
-                            }, selectors.sections, section);
-
                             // Scroll to the current section
                             await page.evaluate((selector) => {
                                 document.querySelector(`#${selector}`).scrollIntoView();
@@ -163,16 +151,6 @@ async function updateDescImgs(projectName, skuList) {
                             const { link: googleDriveLink } = await uploadToGoogleDrive(processedImageBuffer, selectors.googleDriveConfig, Math.round(width), Math.round(height));
 
                             sectionURLs.push({ section, googleDriveLink });
-
-                            // Expand all sections back after processing the current one
-                            await page.evaluate((sections) => {
-                                sections.forEach(selector => {
-                                    const element = document.querySelector(`#${selector}`);
-                                    if (element) {
-                                        element.style.display = '';
-                                    }
-                                });
-                            }, selectors.sections);
 
                         } catch (error) {
                             console.error(`Error processing section #${section}:`, error.message);
