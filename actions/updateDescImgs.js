@@ -116,6 +116,7 @@ async function updateDescImgs(projectName, skuList) {
                     });
                 }, selectors.sections);
 
+                console.log(`visible sections count = ${visibleSections}`);
                 if (visibleSections.length > 0) {
                     // Wait for page assets to load after SKU input
                     await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
