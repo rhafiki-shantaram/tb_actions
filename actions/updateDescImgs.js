@@ -126,7 +126,8 @@ async function updateDescImgs(projectName, skuList) {
                     // Capture full-length screenshot of the page as a buffer
                     await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
                     const screenshotBuffer = await page.screenshot({ fullPage: true });
-
+                    
+                    console.log(`screenshotBuffer captured. length is ${screenshotBuffer.length}`);
                     const sectionURLs = [];
                     for (const section of visibleSections) {
                         try {
