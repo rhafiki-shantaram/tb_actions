@@ -1,11 +1,7 @@
 const Jimp = require('jimp');
 const axios = require('axios');
 
-const processImage = async (imageBuffer, watermarkUrl, dimensions) => {
-    if (!dimensions) {
-        throw new Error('No dimensions provided for cropping and watermark positioning.');
-    }
-
+const processImage = async (imageBuffer, watermarkUrl) => {
     try {
         const image = await Jimp.read(imageBuffer);
 
@@ -17,20 +13,18 @@ const processImage = async (imageBuffer, watermarkUrl, dimensions) => {
         const watermarkBuffer = Buffer.from(response.data, 'binary');
         const watermark = await Jimp.read(watermarkBuffer);
 
-        // Resize watermark only once
-        watermark.resize(dimensions.width * 0.33, Jimp.AUTO);
+        // Resize watermark to 33% of the image width
+        const watermarkWidth = image.bitmap.width * 0.33;
+        watermark.resize(watermarkWidth, Jimp.AUTO);
 
-        const x = dimensions.x + (dimensions.width - watermark.bitmap.width) / 2;
-        const y = dimensions.y + (dimensions.height - watermark.bitmap.height) / 2;
+        const x = (image.bitmap.width - watermark.bitmap.width) / 2;
+        const y = (image.bitmap.height - watermark.bitmap.height) / 2;
 
         // Composite watermark onto the image
         image.composite(watermark, x, y, {
             mode: Jimp.BLEND_SOURCE_OVER,
-            opacitySource: 0.05 
+            opacitySource: 0.05
         });
-
-        // Crop the image to the specified dimensions
-        image.crop(dimensions.x, dimensions.y, dimensions.width, dimensions.height);
 
         // Get the buffer directly in the desired format
         const buffer = await image.getBufferAsync(Jimp.MIME_PNG);
@@ -44,8 +38,8 @@ const processImage = async (imageBuffer, watermarkUrl, dimensions) => {
 
         return {
             buffer,
-            width: Math.round(dimensions.width),
-            height: Math.round(dimensions.height)
+            width: image.bitmap.width,
+            height: image.bitmap.height
         };
     } catch (error) {
         console.error('Error processing image:', error.message);
