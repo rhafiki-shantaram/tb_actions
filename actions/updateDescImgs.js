@@ -200,6 +200,12 @@ async function updateDescImgs(projectName, skuList) {
                     }
                 }
             }
+            // Explicitly trigger garbage collection after each SKU is processed
+            if (global.gc) {
+                global.gc();
+            } else {
+                console.warn('No GC hook! Start your program as `node --expose-gc file.js`.');
+            }
         }
 
     } catch (error) {
