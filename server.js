@@ -3,7 +3,7 @@ const { updateDescImgs } = require('./actions/updateDescImgs.js'); // Adjust the
 const app = express();
 const port = 3000;
 
-app.get('/update-desc-imgs', async (req, res) => {
+app.get('/action', async (req, res) => {
     const { projectName, actionName, skuList } = req.query;
     try {
         if (!projectName || !actionName || !skuList) {
