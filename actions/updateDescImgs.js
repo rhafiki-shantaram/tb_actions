@@ -170,7 +170,7 @@ async function updateDescImgs(projectName, skuList) {
                             return isVisible;
                         }, inputSelector);
 
-                        console.log(`input seems to be visible? `, inputVisible);
+                        console.log(`input ${selectors.gURL_inputs[j]} seems to be visible? `, inputVisible);
 
                         if (inputVisible) {
                             const sectionIndex = sectionURLs.findIndex(urlObj => urlObj.section === selectors.sections[j]);
