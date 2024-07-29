@@ -4,9 +4,9 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 const parentProjectSelectors = require('../selectors/parentProjectSelectors');
-const { captureScreenshot, processImage } = require('../utils/jimpUtils');
+const { processImage } = require('../utils/jimpUtils');
 const { uploadToGoogleDrive } = require('../utils/googleDriveUtils');
-const { waitForImagesToLoad, getElementDimensions } = require('../utils/updateDescImg_helperFunctions');
+const { waitForImagesToLoad } = require('../utils/updateDescImg_helperFunctions');
 const fetch = require('node-fetch'); // Ensure to install node-fetch if not already installed
 
 async function updateDescImgs(projectName, skuList) {
@@ -122,21 +122,19 @@ async function updateDescImgs(projectName, skuList) {
                     await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
                     await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
-                    // Capture full-length screenshot of the page as a buffer
-                    await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Page
-                    const screenshotBuffer = await page.screenshot({ fullPage: true });
-
                     const sectionURLs = [];
                     for (const section of visibleSections) {
                         try {
-                            const dimensions = await getElementDimensions(page, `#${section}`, DEVICE_SCALE_FACTOR);
+                            // Capture screenshot of the element directly
+                            await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Element
+                            const elementHandle = await page.$(`#${section}`);
+                            const screenshotBuffer = await elementHandle.screenshot();
 
-                            // Process image with JIMP (crop and watermark) using the dimensions
+                            // Process image with JIMP (crop and watermark) using the element screenshot
                             await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
                             const { buffer: processedImageBuffer, width, height } = await processImage(
                                 screenshotBuffer,
-                                selectors.watermarkUrl, // Use the URL for the watermark
-                                dimensions
+                                selectors.watermarkUrl // Use the URL for the watermark
                             );
 
                             // Upload processed image to Google Drive
