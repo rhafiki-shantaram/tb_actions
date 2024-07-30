@@ -27,20 +27,6 @@ async function updateDescImgs(projectName, skuList) {
     const DEVICE_SCALE_FACTOR = 2.5;
     await page.setViewport({ width: 768, height: 1080, deviceScaleFactor: DEVICE_SCALE_FACTOR });
 
-    // Calculate the total number of status updates dynamically
-    const calculateTotalStatusUpdates = (skuList, selectors) => {
-        const totalUpdates = skuList.length * (
-            1 // Processing SKU
-            + 1 // Locate and Interact with Input Field
-            + 1 // Wait for Page Assets to Load
-            + selectors.sections.length // Process Each Section
-            + 1 // Input Google Drive URLs into the Page
-        );
-        return totalUpdates;
-    };
-
-    const totalStatusUpdates = calculateTotalStatusUpdates(skuList, parentProjectSelectors[projectName]);
-
     const sendStatusUpdate = async (eventIndex, sku, progressTarget) => {
         console.log(`update at step ${eventIndex}`);
         try {
@@ -106,6 +92,16 @@ async function updateDescImgs(projectName, skuList) {
 
         for (let i = 0; i < skuList.length; i++) {
             const sku = skuList[i];
+
+            // Calculate the total number of status updates for this SKU
+            const totalStatusUpdates = (
+                1 // Processing SKU
+                + 1 // Locate and Interact with Input Field
+                + 1 // Wait for Page Assets to Load
+                + selectors.sections.length // Process Each Section
+                + 1 // Input Google Drive URLs into the Page
+            );
+
             let eventIndexCounter = 0;
             await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Log the Processing SKU
             console.log(`Processing SKU: ${sku}`);
