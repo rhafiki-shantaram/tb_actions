@@ -42,6 +42,21 @@ async function updateDescImgs(projectName, skuList) {
         }
     };
 
+    const sendURLsUpdate = async (sku, urls) => {
+        console.log(`Sending URLs update for SKU: ${sku}`);
+        try {
+            await fetch('https://trendyadventurer.wixstudio.io/tb-redo/_functions/updateDescImgs_urlsUpdate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sku, urls })
+            });
+        } catch (error) {
+            console.error('Error sending URLs update:', error);
+        }
+    };
+
     try {
         const selectors = parentProjectSelectors[projectName];
         const url = selectors.targetUrl;
@@ -148,54 +163,13 @@ async function updateDescImgs(projectName, skuList) {
                     }
                     console.log(`sectionURLs: `, sectionURLs);
 
-                    // Input Google Drive URLs into the page
-                    await sendStatusUpdate(++eventIndexCounter, sku); // Input Google Drive URLs into the Page
+                    // Send URLs to the new HTTP endpoint
+                    const urls = sectionURLs.reduce((acc, { section, googleDriveLink }, index) => {
+                        acc[index] = googleDriveLink;
+                        return acc;
+                    }, {});
 
-                    for (let j = 0; j < selectors.gURL_inputs.length; j++) {
-                        const inputSelector = `#${selectors.gURL_inputs[j]}`;
-
-                        await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
-
-                        const inputVisible = await page.evaluate((selector) => {
-                            const element = document.querySelector(selector);
-                            if (!element) return false;
-
-                            const style = window.getComputedStyle(element);
-                            const isVisible = style.display !== 'none' &&
-                                            style.visibility !== 'hidden' &&
-                                            style.opacity !== '0' &&
-                                            element.offsetHeight > 0 &&
-                                            element.offsetWidth > 0;
-
-                            return isVisible;
-                        }, inputSelector);
-
-                        console.log(`input ${selectors.gURL_inputs[j]} seems to be visible? `, inputVisible);
-
-                        if (inputVisible) {
-                            const sectionIndex = sectionURLs.findIndex(urlObj => urlObj.section === selectors.sections[j]);
-                            if (sectionIndex !== -1) {
-                                const gURL = sectionURLs[sectionIndex].googleDriveLink; // Match section with its URL
-                                await page.waitForSelector(inputSelector, { visible: true, timeout: 30000 });
-                                await page.focus(inputSelector);
-                                await page.click(inputSelector);
-                                const inputValueBefore = await page.evaluate((selector) => {
-                                    return document.querySelector(selector).value;
-                                }, inputSelector);
-                                if (inputValueBefore !== "") {
-                                    await page.evaluate((selector) => {
-                                        document.querySelector(selector).value = '';
-                                    }, inputSelector);
-                                }
-                                await page.keyboard.type(gURL);
-                                await page.mouse.move(0, 0); // Move mouse away to trigger onChange
-                                await page.evaluate((selector) => {
-                                    const input = document.querySelector(selector);
-                                    input.blur(); // Explicitly trigger the blur event
-                                }, inputSelector);
-                            }
-                        }
-                    }
+                    await sendURLsUpdate(sku, urls);
                 }
             }
             // Explicitly trigger garbage collection after each SKU is processed
