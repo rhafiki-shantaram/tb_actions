@@ -142,10 +142,29 @@ async function updateDescImgs(projectName, skuList) {
                 }, selectors.sections);
 
                 if (visibleSections.length > 0) {
-                    // Wait for page assets to load after SKU input
-                    await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Wait for Page Assets to Load
-                    await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
-                    await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
+                    // Check which pageAssets are present
+                    const presentPageAssets = await page.evaluate((assets) => {
+                        return assets.filter(selector => {
+                            const element = document.querySelector(selector);
+                            if (!element) return false;
+
+                            const style = window.getComputedStyle(element);
+                            const isVisible = style.display !== 'none' &&
+                                            style.visibility !== 'hidden' &&
+                                            style.opacity !== '0' &&
+                                            element.offsetHeight > 0 &&
+                                            element.offsetWidth > 0;
+
+                            return isVisible;
+                        });
+                    }, selectors.pageAssets.map(asset => `#${asset} img`));
+
+                    if (presentPageAssets.length > 0) {
+                        // Wait for the present page assets to load
+                        await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Wait for Page Assets to Load
+                        await waitForImagesToLoad(page, presentPageAssets);
+                        await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
+                    }
 
                     const sectionURLs = [];
                     for (const section of visibleSections) {
