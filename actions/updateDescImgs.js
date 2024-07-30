@@ -27,7 +27,21 @@ async function updateDescImgs(projectName, skuList) {
     const DEVICE_SCALE_FACTOR = 2.5;
     await page.setViewport({ width: 768, height: 1080, deviceScaleFactor: DEVICE_SCALE_FACTOR });
 
-    const sendStatusUpdate = async (eventIndex, sku) => {
+    // Calculate the total number of status updates dynamically
+    const calculateTotalStatusUpdates = (skuList, selectors) => {
+        const totalUpdates = skuList.length * (
+            1 // Processing SKU
+            + 1 // Locate and Interact with Input Field
+            + 1 // Wait for Page Assets to Load
+            + selectors.sections.length // Process Each Section
+            + 1 // Input Google Drive URLs into the Page
+        );
+        return totalUpdates;
+    };
+
+    const totalStatusUpdates = calculateTotalStatusUpdates(skuList, parentProjectSelectors[projectName]);
+
+    const sendStatusUpdate = async (eventIndex, sku, progressTarget) => {
         console.log(`update at step ${eventIndex}`);
         try {
             await fetch('https://trendyadventurer.wixstudio.io/tb-redo/_functions/updateDescImgs_statusUpdate', {
@@ -35,7 +49,7 @@ async function updateDescImgs(projectName, skuList) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ eventIndex, sku })
+                body: JSON.stringify({ eventIndex, sku, progressTarget })
             });
         } catch (error) {
             console.error('Error sending status update:', error);
@@ -93,11 +107,11 @@ async function updateDescImgs(projectName, skuList) {
         for (let i = 0; i < skuList.length; i++) {
             const sku = skuList[i];
             let eventIndexCounter = 0;
-            await sendStatusUpdate(++eventIndexCounter, sku); // Log the Processing SKU
+            await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Log the Processing SKU
             console.log(`Processing SKU: ${sku}`);
             const inputHandle = await page.$(`#${selectors.searchInput}`);
             if (inputHandle) {
-                await sendStatusUpdate(++eventIndexCounter, sku); // Locate and Interact with the Input Field
+                await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Locate and Interact with the Input Field
                 await page.waitForSelector(`#${selectors.searchInput}`, { visible: true, timeout: 30000 });
                 await page.focus(`#${selectors.searchInput}`);
                 await page.click(`#${selectors.searchInput}`);
@@ -133,7 +147,7 @@ async function updateDescImgs(projectName, skuList) {
 
                 if (visibleSections.length > 0) {
                     // Wait for page assets to load after SKU input
-                    await sendStatusUpdate(++eventIndexCounter, sku); // Wait for Page Assets to Load
+                    await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Wait for Page Assets to Load
                     await waitForImagesToLoad(page, selectors.pageAssets.map(asset => `#${asset} img`));
                     await new Promise(resolve => setTimeout(resolve, 4000));  // Adjust the timeout as necessary
 
@@ -141,12 +155,12 @@ async function updateDescImgs(projectName, skuList) {
                     for (const section of visibleSections) {
                         try {
                             // Capture screenshot of the element directly
-                            await sendStatusUpdate(++eventIndexCounter, sku); // Capture Screenshot of the Element
+                            await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Capture Screenshot of the Element
                             const elementHandle = await page.$(`#${section}`);
                             const screenshotBuffer = await elementHandle.screenshot();
 
                             // Process image with JIMP (crop and watermark) using the element screenshot
-                            await sendStatusUpdate(++eventIndexCounter, sku); // Process Each Section
+                            await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Process Each Section
                             const { buffer: processedImageBuffer, width, height } = await processImage(
                                 screenshotBuffer,
                                 selectors.watermarkUrl // Use the URL for the watermark
