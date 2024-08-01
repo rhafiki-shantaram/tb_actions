@@ -4,7 +4,7 @@ const parentProjectSelectors = {
       dropdown: 'comp-lz88ome0',
       optionText: 'Lady Grayy', 
       searchInput: 'input_comp-lz88omfn4',
-      pageAssets: ['img-comp-lz88omay8','img-comp-lz88omb03','img-comp-lz9hnh3m1','img-comp-lz9mvetw2','img-comp-lz9mveu2','img-comp-lz9lgz42','img-comp-lz9oqkkz2'],
+      pageAssets: ['img-comp-lz88omay8','img-comp-lz88omb03','img-comp-lz9hnh3m1','img-comp-lz9mvetw2','img-comp-lz9mveu2','img-comp-lz9lgz42'],
       sections: ['comp-lz88omao','comp-lz9ft1fb','comp-lz9mvet4','comp-lz9lgz39','comp-lz9oqkk5'],
       gURL_inputs: ['input_comp-lz1211mz','input_comp-lz2jp4we', 'input_comp-lx2w05y5', 'input_comp-lx2w80l4', 'input_comp-lydv543f', 'input_comp-lypenjbz'],
       googleDriveConfig: {
