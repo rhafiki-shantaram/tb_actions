@@ -4,8 +4,8 @@ const parentProjectSelectors = {
       dropdown: 'comp-lz88ome0',
       optionText: 'Lady Grayy', 
       searchInput: 'input_comp-lz88omfn4',
-      pageAssets: ['img-comp-lz9oqkkz2','img-comp-lz9lgz42','img-comp-lz9mveu2','img-comp-lz9mvetw2','img-comp-lz9hnh3m1','img-comp-lz88omb03','img-comp-lz88omay8','img-comp-lz1211lr','img-comp-lz125hy82__0','img-comp-lye58pqb1', 'img-comp-lydxb9ss', 'img-comp-lwzv3gwn2', 'img-comp-lwzv4kn911', 'img-comp-lwzv55il2', 'img-comp-lwzv4knh1', 'img-comp-lwzv4knn10'],
-      sections: ['comp-lz88omao','comp-lz9ft1fb','comp-lz9mvet4','comp-lz9lgz39','comp-lz9oqkk5','comp-lz1211ll','comp-lz125hxh','comp-lydv3ffl', 'comp-lwzv3gwi', 'comp-lwzv4kmz', 'comp-lwzv55h3'],
+      pageAssets: ['img-comp-lz88omay8','img-comp-lz88omb03','img-comp-lz9hnh3m1','img-comp-lz9mvetw2','img-comp-lz9mveu2','img-comp-lz9lgz42','img-comp-lz9oqkkz2'],
+      sections: ['comp-lz88omao','comp-lz9ft1fb','comp-lz9mvet4','comp-lz9lgz39','comp-lz9oqkk5'],
       gURL_inputs: ['input_comp-lz1211mz','input_comp-lz2jp4we', 'input_comp-lx2w05y5', 'input_comp-lx2w80l4', 'input_comp-lydv543f', 'input_comp-lypenjbz'],
       googleDriveConfig: {
           "type": "service_account",
