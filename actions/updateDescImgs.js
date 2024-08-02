@@ -93,21 +93,13 @@ async function updateDescImgs(projectName, skuList) {
         for (let i = 0; i < skuList.length; i++) {
             const sku = skuList[i];
 
-            // Calculate the total number of status updates for this SKU
-            const totalStatusUpdates = (
-                1 // Processing SKU
-                + 1 // Locate and Interact with Input Field
-                + 1 // Wait for Page Assets to Load
-                + selectors.sections.length // Process Each Section
-                + 1 // Input Google Drive URLs into the Page
-            );
-
+            // Locate and interact with the input field
             let eventIndexCounter = 0;
-            await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Log the Processing SKU
+            await sendStatusUpdate(++eventIndexCounter, sku, 5); // Log the Processing SKU
             console.log(`Processing SKU: ${sku}`);
             const inputHandle = await page.$(`#${selectors.searchInput}`);
             if (inputHandle) {
-                await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Locate and Interact with the Input Field
+                await sendStatusUpdate(++eventIndexCounter, sku, 5); // Locate and Interact with the Input Field
                 await page.waitForSelector(`#${selectors.searchInput}`, { visible: true, timeout: 30000 });
                 await page.focus(`#${selectors.searchInput}`);
                 await page.click(`#${selectors.searchInput}`);
@@ -142,6 +134,15 @@ async function updateDescImgs(projectName, skuList) {
                 }, selectors.sections);
 
                 if (visibleSections.length > 0) {
+                    // Calculate the total number of status updates based on visible sections
+                    const totalStatusUpdates = (
+                        1 // Processing SKU
+                        + 1 // Locate and Interact with Input Field
+                        + 1 // Wait for Page Assets to Load
+                        + visibleSections.length // Process Each Visible Section
+                        + 1 // Input Google Drive URLs into the Page
+                    );
+
                     // Check which pageAssets are present
                     const presentPageAssets = await page.evaluate((assets) => {
                         return assets.filter(selector => {
