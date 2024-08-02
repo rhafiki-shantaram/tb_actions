@@ -114,7 +114,7 @@ async function updateDescImgs(projectName, skuList) {
                 await page.keyboard.type(sku);
                 await page.keyboard.press('Enter');
 
-                await new Promise(resolve => setTimeout(resolve, 2000));  // Adjust the timeout as necessary
+                await new Promise(resolve => setTimeout(resolve, 5000));  // Adjust the timeout as necessary
 
                 // Check if the specified sections are visible dynamically
                 const visibleSections = await page.evaluate((sections) => {
