@@ -6,7 +6,6 @@ const parentProjectSelectors = {
       searchInput: 'input_comp-lz88omfn4',
       pageAssets: ['img-comp-lz88omay8','img-comp-lz88omb03','img-comp-lz9hnh3m1','img-comp-lz9mvetw2','img-comp-lz9mveu2','img-comp-lz9lgz42','img-comp-lz88omfy4','img-comp-lz88omdl4','img-comp-lz88omdt1','img-comp-lz88omd95','img-comp-lz88omet8'],
       sections: ['comp-lz88omao','comp-lz9ft1fb','comp-lz9mvet4','comp-lz9lgz39','comp-lz9oqkk5','comp-lz88omfx5','comp-lz88omd011','comp-lz88ome9','comp-lz88ombj7','comp-lz88omc86'],
-      gURL_inputs: ['input_comp-lz1211mz','input_comp-lz2jp4we', 'input_comp-lx2w05y5', 'input_comp-lx2w80l4', 'input_comp-lydv543f', 'input_comp-lypenjbz'],
       googleDriveConfig: {
           "type": "service_account",
           "project_id": "descimgup",
@@ -27,10 +26,9 @@ const parentProjectSelectors = {
       targetUrl: 'https://trendbase.wixstudio.io/tb-redo/blank-4',
       dropdown: 'comp-lwzvacy9',
       optionText: 'Santeco', 
-      searchInput: 'input_comp-lx04dqgg1',
-      pageAssets: ["img-comp-ly41quih4", "img-comp-ly43tpzd1", "img-comp-ly47oqjg"],
-      sections: ["comp-ly41quhg2", "comp-ly43ljyp6", "comp-ly47oqj93", "comp-ly47zucx"],
-      gURL_inputs: ["input_comp-lymtnxpf", "input_comp-lymtpn7o", "input_comp-lymtpvay3", "input_comp-lymtpznm1"],
+      searchInput: 'input_comp-lz88omfn4',
+      pageAssets: ["img-comp-lz88omjh16","img-comp-lz88om8l2","img-comp-lz88om9x2"],
+      sections: ["comp-lz88omi8","comp-lz88om8e","comp-lz88om9s4","comp-lz88omgv3"],
       googleDriveConfig: {
           "type": "service_account",
           "project_id": "descimgup",
