@@ -28,7 +28,7 @@ async function updateDescImgs(projectName, skuList) {
     await page.setViewport({ width: 768, height: 1080, deviceScaleFactor: DEVICE_SCALE_FACTOR });
 
     const sendStatusUpdate = async (eventIndex, sku, progressTarget) => {
-        console.log(`update at step ${eventIndex})`;
+        console.log(`update at step ${eventIndex}`);
         try {
             await fetch('https://trendyadventurer.wixstudio.io/tb-redo/_functions/updateDescImgs_statusUpdate', {
                 method: 'POST',
