@@ -62,7 +62,7 @@ async function updateDescImgs(projectName, skuList) {
         const url = selectors.targetUrl;
         console.log(`Navigating to URL: ${url}`);
         await page.goto(url, { waitUntil: 'networkidle2' });
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await page.waitForSelector(`#${selectors.dropdown}`, { visible: true });
 
         await page.click(`#${selectors.dropdown}`);
         await page.waitForSelector(`#listModal_${selectors.dropdown}`, { visible: true });
