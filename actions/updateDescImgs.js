@@ -62,7 +62,19 @@ async function updateDescImgs(projectName, skuList) {
         const url = selectors.targetUrl;
         console.log(`Navigating to URL: ${url}`);
         await page.goto(url, { waitUntil: 'networkidle2' });
+
+        // Wait for the dropdown to be visible
         await page.waitForSelector(`#${selectors.dropdown}`, { visible: true });
+
+        // Wait until the options are loaded in the dropdown
+        await page.waitForFunction(
+            (dropdownSelector) => {
+                const dropdown = document.querySelector(`#${dropdownSelector}`);
+                return dropdown && dropdown.options && dropdown.options.length > 1;
+            },
+            {},
+            selectors.dropdown
+        );
 
         await page.click(`#${selectors.dropdown}`);
         await page.waitForSelector(`#listModal_${selectors.dropdown}`, { visible: true });
