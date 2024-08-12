@@ -23,7 +23,7 @@ const parentProjectSelectors = {
       watermarkUrl: 'https://static.wixstatic.com/media/7c16b9_ca023ca3f322498e9471954ad63b08d1~mv2.png'
   },
   Santeco: {
-      targetUrl: 'https://trendbase.wixstudio.io/tb-redo/blank-4',
+      targetUrl: 'https://trendbase.wixstudio.io/tb-redo/pcd',
       dropdown: 'comp-lz88ome0',
       optionText: 'Santeco', 
       searchInput: 'input_comp-lz88omfn4',
