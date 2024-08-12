@@ -24,7 +24,7 @@ const parentProjectSelectors = {
   },
   Santeco: {
       targetUrl: 'https://trendbase.wixstudio.io/tb-redo/blank-4',
-      dropdown: 'comp-lz88ome0',
+      dropdown: 'collection_comp-lz88ome0',
       optionText: 'Santeco', 
       searchInput: 'input_comp-lz88omfn4',
       pageAssets: ["img-comp-lz88omjh16","img-comp-lz88om8l2","img-comp-lz88om9x2"],
