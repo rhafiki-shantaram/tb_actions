@@ -43,7 +43,7 @@ async function updateDescImgs(projectName, skuList) {
     };
 
     const sendURLsUpdate = async (sku, urls) => {
-        console.log(Sending URLs update for SKU: ${sku});
+        console.log(`Sending URLs update for SKU: ${sku}`);
         try {
             await fetch('https://trendyadventurer.wixstudio.io/tb-redo/_functions/updateDescImgs_urlsUpdate', {
                 method: 'POST',
@@ -60,14 +60,14 @@ async function updateDescImgs(projectName, skuList) {
     try {
         const selectors = parentProjectSelectors[projectName];
         const url = selectors.targetUrl;
-        console.log(Navigating to URL: ${url});
+        console.log(`Navigating to URL: ${url}`);
         await page.goto(url, { waitUntil: 'networkidle2' });
         await new Promise(resolve => setTimeout(resolve, 5000));
 
-        await page.click(#${selectors.dropdown});
-        await page.waitForSelector(#listModal_${selectors.dropdown}, { visible: true });
+        await page.click(`#${selectors.dropdown}`);
+        await page.waitForSelector(`#listModal_${selectors.dropdown}`, { visible: true });
         await page.evaluate((dropdownSelector, optionText) => {
-            const optionList = document.querySelector(#listModal_${dropdownSelector});
+            const optionList = document.querySelector(`#listModal_${dropdownSelector}`);
             const options = optionList.querySelectorAll('div');
             options.forEach(option => {
                 if (option.innerText.includes(optionText)) {
@@ -96,20 +96,20 @@ async function updateDescImgs(projectName, skuList) {
             // Locate and interact with the input field
             let eventIndexCounter = 0;
             await sendStatusUpdate(++eventIndexCounter, sku, 5); // Log the Processing SKU
-            console.log(Processing SKU: ${sku});
-            const inputHandle = await page.$(#${selectors.searchInput});
+            console.log(`Processing SKU: ${sku}`);
+            const inputHandle = await page.$(`#${selectors.searchInput}`);
             if (inputHandle) {
                 await sendStatusUpdate(++eventIndexCounter, sku, 5); // Locate and Interact with the Input Field
-                await page.waitForSelector(#${selectors.searchInput}, { visible: true, timeout: 30000 });
-                await page.focus(#${selectors.searchInput});
-                await page.click(#${selectors.searchInput});
+                await page.waitForSelector(`#${selectors.searchInput}`, { visible: true, timeout: 30000 });
+                await page.focus(`#${selectors.searchInput}`);
+                await page.click(`#${selectors.searchInput}`);
                 const inputValueBefore = await page.evaluate((selector) => {
                     return document.querySelector(selector).value;
-                }, #${selectors.searchInput});
+                }, `#${selectors.searchInput}`);
                 if (inputValueBefore !== "") {
                     await page.evaluate((selector) => {
                         document.querySelector(selector).value = '';
-                    }, #${selectors.searchInput});
+                    }, `#${selectors.searchInput}`);
                 }
                 await page.keyboard.type(sku);
                 await page.keyboard.press('Enter');
@@ -119,15 +119,15 @@ async function updateDescImgs(projectName, skuList) {
                 // Check if the specified sections are visible dynamically
                 const visibleSections = await page.evaluate((sections) => {
                     return sections.filter(selector => {
-                        const element = document.querySelector(#${selector});
+                        const element = document.querySelector(`#${selector}`);
                         if (!element) return false;
 
                         const style = window.getComputedStyle(element);
                         const isVisible = style.display !== 'none' &&
-                                        style.visibility !== 'hidden' &&
-                                        style.opacity !== '0' &&
-                                        element.offsetHeight > 0 &&
-                                        element.offsetWidth > 0;
+                                          style.visibility !== 'hidden' &&
+                                          style.opacity !== '0' &&
+                                          element.offsetHeight > 0 &&
+                                          element.offsetWidth > 0;
 
                         return isVisible;
                     });
@@ -151,14 +151,14 @@ async function updateDescImgs(projectName, skuList) {
 
                             const style = window.getComputedStyle(element);
                             const isVisible = style.display !== 'none' &&
-                                            style.visibility !== 'hidden' &&
-                                            style.opacity !== '0' &&
-                                            element.offsetHeight > 0 &&
-                                            element.offsetWidth > 0;
+                                              style.visibility !== 'hidden' &&
+                                              style.opacity !== '0' &&
+                                              element.offsetHeight > 0 &&
+                                              element.offsetWidth > 0;
 
                             return isVisible;
                         });
-                    }, selectors.pageAssets.map(asset => #${asset} img));
+                    }, selectors.pageAssets.map(asset => `#${asset} img`));
 
                     if (presentPageAssets.length > 0) {
                         // Wait for the present page assets to load
@@ -172,7 +172,7 @@ async function updateDescImgs(projectName, skuList) {
                         try {
                             // Capture screenshot of the element directly
                             await sendStatusUpdate(++eventIndexCounter, sku, totalStatusUpdates); // Capture Screenshot of the Element
-                            const elementHandle = await page.$(#${section});
+                            const elementHandle = await page.$(`#${section}`);
                             const screenshotBuffer = await elementHandle.screenshot();
 
                             // Process image with JIMP (crop and watermark) using the element screenshot
@@ -188,10 +188,10 @@ async function updateDescImgs(projectName, skuList) {
                             sectionURLs.push({ section, googleDriveLink });
 
                         } catch (error) {
-                            console.error(Error processing section #${section}:, error.message);
+                            console.error(`Error processing section #${section}:`, error.message);
                         }
                     }
-                    console.log(sectionURLs: , sectionURLs);
+                    console.log(`sectionURLs: `, sectionURLs);
 
                     // Send URLs to the new HTTP endpoint
                     const urls = sectionURLs.reduce((acc, { section, googleDriveLink }, index) => {
@@ -206,7 +206,7 @@ async function updateDescImgs(projectName, skuList) {
             if (global.gc) {
                 global.gc();
             } else {
-                console.warn('No GC hook! Start your program as node --expose-gc file.js.');
+                console.warn('No GC hook! Start your program as `node --expose-gc file.js`.');
             }
         }
 
