@@ -5,26 +5,30 @@ const processImage = async (imageBuffer, watermarkUrl) => {
     try {
         const image = await Jimp.read(imageBuffer);
 
-        // Download the watermark image from the URL
-        const response = await axios({
-            url: watermarkUrl,
-            responseType: 'arraybuffer'
-        });
-        const watermarkBuffer = Buffer.from(response.data, 'binary');
-        const watermark = await Jimp.read(watermarkBuffer);
+        if (watermarkUrl) {
+            // Download the watermark image from the URL
+            const response = await axios({
+                url: watermarkUrl,
+                responseType: 'arraybuffer'
+            });
+            const watermarkBuffer = Buffer.from(response.data, 'binary');
+            const watermark = await Jimp.read(watermarkBuffer);
 
-        // Resize watermark to 33% of the image width
-        const watermarkWidth = image.bitmap.width * 0.33;
-        watermark.resize(watermarkWidth, Jimp.AUTO);
+            // Resize watermark to 33% of the image width
+            const watermarkWidth = image.bitmap.width * 0.33;
+            watermark.resize(watermarkWidth, Jimp.AUTO);
 
-        const x = (image.bitmap.width - watermark.bitmap.width) / 2;
-        const y = (image.bitmap.height - watermark.bitmap.height) / 2;
+            const x = (image.bitmap.width - watermark.bitmap.width) / 2;
+            const y = (image.bitmap.height - watermark.bitmap.height) / 2;
 
-        // Composite watermark onto the image
-        image.composite(watermark, x, y, {
-            mode: Jimp.BLEND_SOURCE_OVER,
-            opacitySource: 0.05
-        });
+            // Composite watermark onto the image
+            image.composite(watermark, x, y, {
+                mode: Jimp.BLEND_SOURCE_OVER,
+                opacitySource: 0.05
+            });
+        } else {
+            console.log('No watermark URL provided, skipping watermark overlay.');
+        }
 
         // Get the buffer directly in the desired format
         const buffer = await image.getBufferAsync(Jimp.MIME_PNG);
@@ -43,7 +47,7 @@ const processImage = async (imageBuffer, watermarkUrl) => {
         };
     } catch (error) {
         console.error('Error processing image:', error.message);
-        throw new Error('Failed to process image with watermark.');
+        throw new Error('Failed to process image.');
     }
 };
 
