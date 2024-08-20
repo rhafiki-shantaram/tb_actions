@@ -51,7 +51,7 @@ const parentProjectSelectors = {
       optionText: 'Max', 
       searchInput: 'input_comp-lz88omfn4',
       pageAssets: ["img-comp-m022q640", "img-comp-m022q64d1", "img-comp-m022q648", "img-comp-m022q64a1", "img-comp-m022q64h3"],
-      sections: ["comp-m022q63o"],
+      sections: ["comp-m022q63y","comp-m022q6442","comp-m022q64g"],
       googleDriveConfig: {
           "type": "service_account",
           "project_id": "descimgup",
