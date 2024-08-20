@@ -66,7 +66,7 @@ const parentProjectSelectors = {
           "universe_domain": "googleapis.com",
           "drive_folder_id": "1u_RWQIMdG8yxI8gbPw5DxO0xTWGqlCMV"
         },
-      watermarkUrl: 'https://static.wixstatic.com/media/7c16b9_30b30295ef864b3983f60b24b81f4e1b~mv2.png'
+      watermarkUrl: ''
   }
 };
 
