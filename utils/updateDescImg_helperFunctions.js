@@ -3,8 +3,7 @@ const waitForImagesToLoad = async (page, imageSelectors) => {
     console.log('Waiting for images to load...');
     for (const selector of imageSelectors) {
         console.log(`Checking image ${selector}`);
-        
-        // Check if the image exists and is visible
+
         const imageExists = await page.evaluate(selector => {
             const img = document.querySelector(selector);
             if (!img) return false;
@@ -21,29 +20,45 @@ const waitForImagesToLoad = async (page, imageSelectors) => {
 
         if (!imageExists) {
             console.log(`Image ${selector} does not exist or is not visible, skipping...`);
-            continue; // Skip to the next image selector if the image doesn't exist or is not visible
+            continue; // Skip if image does not exist or is invisible
         }
 
-        // Check if the image is fully loaded
-        const imageLoaded = await page.evaluate(selector => {
+        let imageLoaded = await page.evaluate(selector => {
             const img = document.querySelector(selector);
             return img && img.complete && img.naturalHeight !== 0;
         }, selector);
 
         if (!imageLoaded) {
             console.log(`Image ${selector} not loaded yet, waiting...`);
-            await page.waitForFunction(selector => {
+            
+            try {
+                await page.waitForFunction(selector => {
+                    const img = document.querySelector(selector);
+                    return img && img.complete && img.naturalHeight !== 0;
+                }, { timeout: 15000 }, selector); // Use a shorter timeout
+            } catch (error) {
+                console.warn(`Image ${selector} failed to load within the timeout, skipping...`);
+                continue; // Skip if the image doesn't load in the defined timeout
+            }
+
+            // Re-check if the image loaded after waiting
+            imageLoaded = await page.evaluate(selector => {
                 const img = document.querySelector(selector);
                 return img && img.complete && img.naturalHeight !== 0;
-            }, { timeout: 360000 }, selector);
-            console.log(`Image ${selector} loaded.`);
+            }, selector);
+
+            if (imageLoaded) {
+                console.log(`Image ${selector} loaded after waiting.`);
+            } else {
+                console.log(`Image ${selector} did not load, skipping...`);
+                continue; // Skip if the image is still not loaded
+            }
         } else {
             console.log(`Image ${selector} already loaded.`);
         }
     }
-    console.log('All images loaded.');
+    console.log('Finished checking all images.');
 };
-
 
 const getElementDimensions = async (page, selector, scaleFactor) => {
     const dimensions = await page.evaluate(selector => {
