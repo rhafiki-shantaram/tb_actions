@@ -50,8 +50,8 @@ const parentProjectSelectors = {
       dropdown: 'comp-lz88ome0',
       optionText: 'Max', 
       searchInput: 'input_comp-lz88omfn4',
-      pageAssets: ["img-comp-m022q640", "img-comp-m022q64d1", "img-comp-m022q648", "img-comp-m022q64a1", "img-comp-m022q64h3"],
-      sections: ["comp-m022q63y","comp-m022q6442","comp-m022q64g"],
+      pageAssets: ["img-comp-m0w6826k","img-comp-m0qhs6lf5__0","img-comp-m0qhs6lf5__1","img-comp-m0qhs6lf5__2","img-comp-m0qhs6lf5__3","img-comp-m0qhs6lf5__4","img-comp-m0qhs6lf5__5","img-comp-m0qhs6lf5__6","img-comp-m0qhs6lf5__7","img-comp-m0ywo15c","img-comp-m0w7b3zz5__0","img-comp-m0w7b3zz5__1","img-comp-m0w7b3zz5__2","img-comp-m0w7b3zz5__3","img-comp-m0w7b3zz5__4","img-comp-m0w7b3zz5__5","img-comp-m0w7b3zz5__6","img-comp-m0w7b3zz5__7","img-comp-m0w7silu5__0","img-comp-m0w7silu5__1","img-comp-m0w7silu5__2","img-comp-m0w7silu5__3","img-comp-m0w7silu5__4","img-comp-m0w7silu5__5","img-comp-m0w7silu5__6","img-comp-m0w7silu5__7","img-comp-m0xiftrb1"],
+      sections: ["comp-m0yyt60t","comp-m0w90wlt__0","comp-m0w90wlt__1","comp-m0w90wlt__2","comp-m0w90wlt__3","comp-m0w90wlt__4","comp-m0w90wlt__5","comp-m0w90wlt__6","comp-m0w90wlt__7"],
       googleDriveConfig: {
           "type": "service_account",
           "project_id": "descimgup",
