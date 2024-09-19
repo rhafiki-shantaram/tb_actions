@@ -35,7 +35,7 @@ const waitForImagesToLoad = async (page, imageSelectors) => {
                 await page.waitForFunction(selector => {
                     const img = document.querySelector(selector);
                     return img && img.complete && img.naturalHeight !== 0;
-                }, { timeout: 15000 }, selector); // Use a shorter timeout
+                }, { timeout: 7500 }, selector); // Use a shorter timeout
             } catch (error) {
                 console.warn(`Image ${selector} failed to load within the timeout, skipping...`);
                 continue; // Skip if the image doesn't load in the defined timeout
