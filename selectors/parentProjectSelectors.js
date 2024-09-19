@@ -55,7 +55,7 @@ const parentProjectSelectors = {
                   "img-comp-m0w7silu5__0","img-comp-m0w7silu5__1","img-comp-m0w7silu5__2","img-comp-m0w7silu5__3","img-comp-m0w7silu5__4","img-comp-m0w7silu5__5","img-comp-m0w7silu5__6","img-comp-m0w7silu5__7","img-comp-m0w7silu5__8",
                   "img-comp-m0z4w44v__0","img-comp-m0z4w44v__1","img-comp-m0z4w44v__2","img-comp-m0z4w44v__3","img-comp-m0z4w44v__4","img-comp-m0z4w44v__5","img-comp-m0z4w44v__6","img-comp-m0z4w44v__7","img-comp-m0z4w44v__8",
                   "img-comp-m0xiftrb1","img-comp-m0xkp8i72__0","img-comp-m0xkp8i72__1","img-comp-m0xkp8i72__2","img-comp-m0xkp8i72__3","img-comp-m0xlas5m__0","img-comp-m0xlas5m__1","img-comp-m0xlas5m__2"],
-      sections: ["comp-m11m2o6d","comp-m18rgyum","comp-m0w7silb__0","comp-m0w7silb__1","comp-m0w7silb__2","comp-m0w7silb__3",,"comp-m0w7silb__4","comp-m0w7silb__5","comp-m0w7silb__6","comp-m0w7silb__7","comp-m0w7silb__8","comp-m11lxar1"],
+      sections: ["comp-m11m2o6d","comp-m18stw1l","comp-m0w7silb__0","comp-m0w7silb__1","comp-m0w7silb__2","comp-m0w7silb__3",,"comp-m0w7silb__4","comp-m0w7silb__5","comp-m0w7silb__6","comp-m0w7silb__7","comp-m0w7silb__8","comp-m11lxar1"],
       googleDriveConfig: {
           "type": "service_account",
           "project_id": "descimgup",
